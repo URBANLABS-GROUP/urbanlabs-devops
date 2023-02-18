@@ -12,6 +12,8 @@ volumes:
     driver: local
   backend_logs:
     driver: local
+  grafana_data:
+    driver: local
 
 services:
   nginx:
@@ -96,3 +98,14 @@ services:
       - OAUTH_SCOPES=all
     networks:
       - overlay
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: urbanlabs-grafana
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    networks:
+      - overlay
+    volumes:
+      - grafana_data:/var/lib/grafana
