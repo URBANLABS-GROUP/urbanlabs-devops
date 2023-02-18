@@ -60,7 +60,7 @@ services:
       - backend_logs:/logs
 
   postgres:
-    image: postgres:13
+    image: timescale/timescaledb-postgis:2.3.0-pg12
     container_name: urbanlabs-postgresql
     restart: unless-stopped
     environment:
