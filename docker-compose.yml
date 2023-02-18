@@ -1,0 +1,98 @@
+version: '3.4'
+
+networks:
+  overlay:
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  nginx_letsencrypt:
+    driver: local
+  backend_logs:
+    driver: local
+
+services:
+  nginx:
+    image: jonasal/nginx-certbot:latest
+    container_name: urbanlabs-nginx
+    restart: unless-stopped
+    environment:
+      - CERTBOT_EMAIL=binakot@gmail.com
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - overlay
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/user_conf.d/urbanlabs.conf
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd
+      - nginx_letsencrypt:/etc/letsencrypt
+
+  admin:
+    image: urbanlabs-admin:latest
+    container_name: urbanlabs-admin
+    restart: unless-stopped
+    networks:
+      - overlay
+
+  client:
+    image: urbanlabs-client:latest
+    container_name: urbanlabs-client
+    restart: unless-stopped
+    networks:
+      - overlay
+
+  backend:
+    image: urbanlabs-backend:latest
+    container_name: urbanlabs-backend
+    restart: unless-stopped
+    environment:
+      - JAVA_OPTIONS=-Xmx512m -Xmx2g
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://urbanlabs-postgresql:5432/postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    networks:
+      - overlay
+    volumes:
+      - backend_logs:/logs
+
+  postgres:
+    image: postgres:13
+    container_name: urbanlabs-postgresql
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - overlay
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: urbanlabs-pgadmin
+    restart: unless-stopped
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=urbanlabs@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=urbanlabs
+    ports:
+      - 5433:80
+    networks:
+      - overlay
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  swagger:
+    image: swaggerapi/swagger-ui:latest
+    container_name: urbanlabs-swagger
+    restart: unless-stopped
+    environment:
+      - URL=https://api.urbanlabs.ru/v2/api-docs
+      - OAUTH_CLIENT_ID=web
+      - OAUTH_CLIENT_SECRET=secret
+      - OAUTH_APP_NAME=urbanlabs
+      - OAUTH_SCOPES=all
+    networks:
+      - overlay

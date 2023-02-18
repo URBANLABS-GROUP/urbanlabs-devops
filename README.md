@@ -2,6 +2,16 @@
 
 Автоматизация системы URBANLABS.
 
+## Деплой
+
+```bash
+$ ssh root@urbanlabs.ru
+$ cd /home/urbanlabs/urbanlabs-devops
+$ ./build_docker_images.sh
+$ docker-compose build
+$ docker-compose up -d
+```
+
 ## Дополнительно
 
 ### Резервное копирование базы данных PostgreSQL
