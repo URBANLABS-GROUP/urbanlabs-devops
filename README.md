@@ -8,8 +8,8 @@
 $ ssh root@urbanlabs.ru
 $ cd /home/urbanlabs/urbanlabs-devops
 $ ./build_docker_images.sh
-$ docker-compose build
-$ docker-compose up -d
+$ docker compose build
+$ docker compose up -d
 ```
 
 ## Дополнительно
