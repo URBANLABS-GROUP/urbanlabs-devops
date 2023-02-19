@@ -32,9 +32,9 @@ services:
       - ./nginx/.htpasswd:/etc/nginx/.htpasswd
       - nginx_letsencrypt:/etc/letsencrypt
 
-  admin:
-    image: urbanlabs-admin:latest
-    container_name: urbanlabs-admin
+  landing:
+    image: urbanlabs-landing:latest
+    container_name: urbanlabs-landing
     restart: unless-stopped
     networks:
       - overlay
@@ -46,12 +46,29 @@ services:
     networks:
       - overlay
 
+  admin:
+    image: urbanlabs-admin:latest
+    container_name: urbanlabs-admin
+    restart: unless-stopped
+    networks:
+      - overlay
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: urbanlabs-rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    restart: unless-stopped
+    networks:
+      - overlay
+
   backend:
     image: urbanlabs-backend:latest
     container_name: urbanlabs-backend
     restart: unless-stopped
     environment:
-      - JAVA_OPTIONS=-Xmx512m -Xmx2g
+      - JAVA_OPTIONS=-Xmx512m -Xmx4g
       - SPRING_DATASOURCE_URL=jdbc:postgresql://urbanlabs-postgresql:5432/postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
     networks:
